@@ -1,0 +1,144 @@
+// colors
+@dark-black:  rgba(0, 0, 0, 0.87);
+@light-black: rgba(0, 0, 0, 0.54);
+@dark-blue: rgba(17, 31, 42, 1);
+@orange: rgba(255, 150, 0, 0.95);
+@light-blue: lighten(#29b6f6, 25%);
+
+// spacing
+@container-width: 80%;
+
+@card-height: 20;
+@card-v-margin: 25px;
+@card-width: @container-width / 2;
+@card-v-padding: 15px;
+@card-h-padding: 25px;
+
+@sub-card-list-indent: 50px;
+
+// typography
+@import url(http://fonts.googleapis.com/css?family=Fira+Sans);
+
+.text-dark-black          { color: @dark-black; }
+.text-light-black         { color: @light-black; }
+.text-white         	  { color: white; }
+
+.font-weight-light        { font-weight: 300 }
+.font-weight-normal       { font-weight: 400 }
+.font-weight-medium       { font-weight: 500 }
+
+.fs-body {
+  font-family: 'Fira Sans', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0;
+  .font-weight-light;
+  .text-dark-black;
+}
+
+.fs-card {
+	.fs-body;
+	.text-white;
+}
+
+// resets
+body {
+	.fs-body;
+}
+
+ul {
+	padding: 0;
+}
+
+#container {
+	width: @container-width;
+	margin: 0 auto;
+}
+
+.content{
+	background-color:rgb(100,100,100);
+}
+
+.author-list{
+	width:30%;
+	float:left;
+}
+
+.book-list{
+	width:30%;
+	float:left;
+	margin-left:10px;
+}
+
+img {
+	margin-left:10%;
+}
+
+.card {
+	.fs-card;
+
+	color: @dark-blue;
+	border: 2px solid rgb(200,200,200);
+	border-radius:15px;
+
+	min-height: @card-height;
+
+	line-height: 40px;
+
+	margin-top: @card-v-margin;
+	padding: 0 @card-h-padding;
+	
+	.id {
+		float: right;
+	}
+}
+
+
+.book-card {
+	.card;
+	color: @orange;
+	border-color: @orange;
+	padding-left: 0;
+
+	.thumbnail {
+		//width: @card-height * 16/9;
+		min-height: @card-height;
+		vertical-align: middle;
+		margin-right: @card-h-padding;
+	}
+}
+
+.author-card {
+	.card;
+
+	&:hover {
+		background-color: @dark-blue + 150;		
+	}
+}
+
+.new-card {
+  
+	.card;
+	font-size: 20px;
+
+	.big-plus {
+		color: @dark-blue;
+		margin-right: @card-h-padding;
+
+		display: inline-block;
+		font-size: 40px;
+		vertical-align: middle;
+	}
+
+	&:hover {
+		background-color: rgb(230,230,230);;
+		.text-white;
+
+		.big-plus {
+			.text-white;
+		}
+	}
+	height:auto;
+//	line-height:10px;
+}
+
+

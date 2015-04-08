@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Evaluation</title>
+
+    <link rel="stylesheet/less" type="text/css" href="app.less" />
+    <!-- Less preprocessor-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/less.js/2.4.0/less.js"></script>
+
+    <!-- The core React library -->
+    <script src="http://fb.me/react-0.12.2.js"></script>
+    <!-- In-browser JSX transformer, remove when pre-compiling JSX. -->
+    <script src="http://fb.me/JSXTransformer-0.12.2.js"></script>
+</head>
+<body>
+	<img  src="images/kubity.jpg"/>
+    <div id="container">
+    	
+    </div>
+
+    <script type="text/jsx">
+    	//Pour les classes Auhor et Book, je n'ai rien modifier
+        var Author = React.createClass({
+
+            getInitialState: function() {
+                return {showBooks: false};
+            },
+
+            getDefaultProps: function() {
+                return {
+                        loadBooks: function(authorID) {
+                            console.log('authorID', authorID);
+                        },
+
+                        author: {
+                                birthYear: 1999, 
+                                name: 'test name', 
+                                id: 0,
+                                books: []
+                        }
+                    };
+            },
+
+            onClick: function(event) {
+                if (!this.props.author.books) {
+                    this.props.loadBooks(this.props.author.id);
+                }
+                this.setState({showBooks: !this.state.showBooks});
+            },  
+
+            render: function() {
+                return (
+                    <div>
+                        <div className='author-card' onClick={this.onClick}>
+                            <span className='name'>{this.props.author.name}, {this.props.author.birthYear}</span>
+                            <span className='id'>ID: {this.props.author.id}</span>
+                        </div>
+                        {this.state.showBooks ? <BookList books={this.props.author.books} /> : ''}
+                    </div>
+                );   
+            }
+        });
+
+        var Book = React.createClass({
+
+            getDefaultProps: function() {
+                return {
+                        book: {
+                            publicationYear: 1999, 
+                            title: 'test title', 
+                            id: 0, 
+                            author: {
+                                birthYear: 1999, 
+                                name: 'test', 
+                                id: 0
+                            }
+                        }
+                    };
+            },
+
+            render: function() {
+                return (
+                    <div className='book-card'>
+                        {this.props.book.thumbnailURL ? <img className='thumbnail' src={this.props.book.thumbnailURL} /> : ''}
+                        <span className='title'>{this.props.book.title}, {this.props.book.publicationYear}</span>
+                        <span className='id'>ID: {this.props.book.id}</span>
+                    </div>
+                );   
+            }
+        });
+        
+        //Dans la classe NewAuthorForm, j'ai ajouté les inputs, j'ai aussi changé un peu le style dans app.less
+        //J'ai mis deux Listeners pour les deux champs name et birthYear pour modifier la valeur du state chaque fois que leur valeur est changé
+        //Enfin, quand on submit, on vérifie tout d'abord que les données sont bien saisies, puis on transmet l'appel au père
+        var NewAuthorForm = React.createClass({
+        	
+        	getInitialState: function(){
+        		return ({name:'' , birthYear: ''});
+        	},
+        	
+        	nameChange: function(e){
+        		this.setState({name:e.target.value});
+        	},
+			
+			birthChange: function(e){
+        		this.setState({birthYear:e.target.value});
+        	},
+            
+            onSubmit: function(e) {
+            	e.preventDefault();
+            	var name = this.state.name;
+            	var by = this.state.birthYear;
+            	if(!name || !by){
+            		alert('Please fill in both fields');
+            	}
+            	else
+            	{
+                	this.props.onSubmit(this);
+                	this.setState({name:'',birthYear:''});
+               }
+            },
+
+            render: function() {
+                return (
+                    <form className="new-card" onSubmit={this.onSubmit}>
+                        <input type="text" value={this.state.name} placeholder="author name..." onChange={this.nameChange}/>
+                        <input type="text" value={this.state.birthYear} placeholder="birth year..." onChange={this.birthChange}/><br/>
+                        <input type="submit" value="Add Auhtor"/>
+                    </form>
+                );
+            }
+        });
+		
+		//Dans l'authorlist, on reçoit à chaque ajout les données de l'autheur, puis faire un simple concat pour les ajoutés
+		//Dans cette partie du programme, nous allons ajouter les appels au serveur afin de faire la sauvegarde des données ajoutées
+        var AuthorList = React.createClass({
+        	getInitialState:function(){
+        		return { 
+                        authors: this.props.authors, 
+                    };
+        	},
+
+            getDefaultProps: function() {
+                return { 
+                        authors: [], 
+                        loadBooks: function() {}
+                    };
+            },
+            
+            onSubmit: function(e){
+            	var nextid = this.state.authors.length + 1;
+            	var newauthorlist = this.state.authors.concat([{name:e.state.name, birthYear:e.state.birthYear, id:nextid}]);
+            	this.setState({authors : newauthorlist});
+            },
+
+            render: function() {
+                return (
+                    <div className='author-list'>
+                        <ul>
+                            <NewAuthorForm onSubmit={this.onSubmit}/>
+                            {this.state.authors.map(function(author){
+                                return <Author 
+                                            author={author} 
+                                            loadBooks={this.props.loadBooks} 
+                                            key={author.id}/>;
+                            }.bind(this))}
+                        </ul>
+					 	{this.props.authors.length === 0 ? <h4>No authors... Try creating one</h4> : ''}
+                    </div>
+                );
+            }
+        });
+
+        var NewBookForm = React.createClass({
+
+            onClick: function() {
+                alert('TODO');
+            },
+
+            render: function() {
+                return (
+                    <form className='new-card' onClick={this.onClick}>
+                        <span className='big-plus'>+</span>
+                        <span>Add Book</span>
+                    </form>
+                );
+            }
+        });
+
+        var BookList = React.createClass({
+
+            getDefaultProps: function() {
+                return { 
+                        books: []
+                    };
+            },
+
+            render: function() {
+                return (
+                    <div className='book-list' >
+                        <ul>
+                            <NewBookForm />
+                            {this.props.books.map(function(book){
+                                return <Book book={book} key={book.id} />;
+                            })}
+                        </ul>
+						{this.props.authors.length === 0 ? <h4>No Books... Try creating one</h4> : ''}
+                    </div>
+                );
+            }
+        });
+
+        var App = React.createClass({
+
+            getInitialState: function() {
+                return {authors:[{name:'author1',birthYear:1993,id:1},{name:'author2',birthYear:1992,id:2}], books: []};
+            },
+			
+            loadAuthors: function() {
+
+                var req = new XMLHttpRequest();
+                req.open('GET', '/author', true);
+
+                req.onreadystatechange = function (aEvt) {
+                    if (req.readyState == 4) {
+                        if(req.status == 200) {
+                            console.log('authors list: ', req.responseText);
+                            this.setState({authors: JSON.parse(req.responseText)});
+                        } else {
+                            console.log('Erreur pendant le chargement des auteurs.\n');
+                        }
+                    }
+                }.bind(this);
+
+                req.send(null);
+            },
+
+            loadBooks: function(authorID) {
+
+                var req = new XMLHttpRequest();
+                req.open('GET', '/author/' + authorID + '/book', true);
+
+                req.onreadystatechange = function (aEvt) {
+                    if (req.readyState == 4) {
+                        if(req.status == 200) {
+                            console.log('author ID', authorID, ' books list: ', req.responseText);
+                            this.setState({authors: this.state.authors.map(function(author){
+                                if (author.id === authorID) {
+                                    author.books = JSON.parse(req.responseText);
+                                }
+                                return author;
+                            })});
+                        } else {
+                            console.log('Erreur pendant le chargement des livres. \n');
+                        }
+                    }
+                }.bind(this);
+
+                req.send(null);
+            },
+
+            componentDidMount: function() {
+                this.loadAuthors();
+            },
+
+            render: function() {
+                return (
+                		
+						<div className='content'>
+                        	<AuthorList authors={this.state.authors} loadBooks={this.loadBooks} />
+						</div>
+						
+                );
+            }
+        });
+
+        React.render(<App />, document.getElementById('container'));
+
+    </script>
+</body>
+</html>
